@@ -1,4 +1,4 @@
-import "./App.css"; // styles
+//?import "./App.css"; // styles
 import { useState } from "react";
 import Editor, { loader } from "@monaco-editor/react"; // monaco editor react
 import * as monaco from "monaco-editor"; // monaco original repo
@@ -18,8 +18,8 @@ function App() {
     ///ipcRenderer.on('file:open', (event, msg) => setEditorValue(msg))
 
     return (
-        <section className="content">
-            <div className="editor-part">
+        <section className="grid grid-cols-2 h-screen">
+            <div>
                 <Editor
                     height="100%"
                     theme="vs-dark"
@@ -31,10 +31,7 @@ function App() {
                     className="editor"
                 />
             </div>
-            <div
-                className="renderer"
-                dangerouslySetInnerHTML={setHTMLpart()}
-            ></div>
+            <div dangerouslySetInnerHTML={setHTMLpart()}></div>
         </section>
     );
 }
