@@ -4,7 +4,8 @@ const fs = require("fs");
 
 const { app, BrowserWindow, Menu, dialog, ipcMain } = require("electron");
 const isDev = require("electron-is-dev");
-let win, defaultFilePath;
+
+let win, defaultFilePath; // it can not be const because it changes
 
 const openFile = () =>
     dialog.showOpenDialogSync({
@@ -40,14 +41,6 @@ const templateMenu = [
         label: "File",
         submenu: [
             {
-                label: "New File",
-                accelerator: "Ctrl+N",
-                click() {
-                    //createNewProductWindow();
-                    main.webContents.openDevTools();
-                },
-            },
-            {
                 label: "Open file",
                 accelerator: "Ctrl+O",
                 click() {
@@ -64,15 +57,13 @@ const templateMenu = [
                 label: "Save as",
                 accelerator: "Ctrl+Shift+S",
                 click() {
-                    //TODO
-                    const pathToSave = saveFile();
-                    console.log(pathToSave);
+                    const pathToSave = saveFile(); // this returns the path where have to save file
                     win.webContents.send("haveToSendData");
                     ipcMain.once("file:data", (event, msg) => {
                         console.log("recived", msg);
                         fs.writeFileSync(pathToSave, msg);
                     });
-                    defaultFilePath = pathToSave;
+                    defaultFilePath = pathToSave; // save the path for next time
                 },
             },
             {
@@ -96,6 +87,27 @@ const templateMenu = [
                         });
                         defaultFilePath = pathToSave;
                     }
+                },
+            },
+        ],
+    },
+    {
+        label: "About",
+        submenu: [
+            {
+                label: "View this proyect on github",
+                click() {
+                    require("electron").shell.openExternal(
+                        "https://github.com/chemokita13/html-editor-viewer_electron"
+                    );
+                },
+            },
+            {
+                label: "View the creator's profile on github",
+                click() {
+                    require("electron").shell.openExternal(
+                        "https://github.com/chemokita13s"
+                    );
                 },
             },
         ],

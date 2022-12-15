@@ -1,46 +1,43 @@
-//?import "./App.css"; // styles
 import { useState, useEffect, useRef } from "react";
 import Editor, { loader } from "@monaco-editor/react"; // monaco editor react
 import * as monaco from "monaco-editor"; // monaco original repo
 
 const { ipcRenderer } = window.require("electron"); // from electronjs docs
-//import { ipcRenderer } from "electron";
 
 function App() {
-    const editorRef = useRef(null);
+    const editorRef = useRef(null); // editor ref
     loader.config({ monaco }); // To replace monaco-editor/react cdn's to local files
 
     const [EditorValue, setEditorValue] = useState(""); // default value
 
     const setHTMLpart = () => {
         return { __html: EditorValue };
-    }; // return value
+    }; // return value to set in the other <div>
 
     useEffect(() => {
         const sendContent = () => {
-            ipcRenderer.send("file:data", editorRef.current.getValue());
+            ipcRenderer.send("file:data", editorRef.current.getValue()); // I can not use EditorValue and i dont know why, but that way is working
             console.log("sended", editorRef.current.getValue());
         };
         ipcRenderer.on("file:open", (event, msg) => setEditorValue(msg));
-        ipcRenderer.on("haveToSendData", (event) => {
+        ipcRenderer.on("haveToSendData", () => {
             sendContent();
         });
 
         return () => {
+            // To disconect listeners
             ipcRenderer.removeListener("file:open", (event, msg) =>
                 setEditorValue(msg)
             );
-            ipcRenderer.removeListener("haveToSendData", (event) => {
+            ipcRenderer.removeListener("haveToSendData", () => {
                 sendContent();
             });
         };
     });
 
-    function handleEditorDidMount(editor, monaco) {
+    function handleEditorDidMount(editor) {
         editorRef.current = editor;
     }
-
-    ///ipcRenderer.on('file:open', (event, msg) => setEditorValue(msg))
 
     return (
         <section className="grid grid-cols-2 h-screen">
@@ -55,7 +52,9 @@ function App() {
                     }}
                     className="editor"
                     onMount={handleEditorDidMount}
-                    loading={<h1>EDITOR LOADING</h1>}
+                    loading={
+                        <h1 className="underline">Loading, please wait...</h1> // When editor is loading
+                    }
                 />
             </div>
             <div dangerouslySetInnerHTML={setHTMLpart()}></div>
