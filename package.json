@@ -3,6 +3,8 @@
     "version": "0.1.0",
     "private": true,
     "main": "public/electron.js",
+    "author": "chemokita13",
+    "description": "my description",
     "homepage": "./",
     "dependencies": {
         "@monaco-editor/react": "^4.4.6",
