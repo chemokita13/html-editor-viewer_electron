@@ -1,16 +1,25 @@
 const path = require("path");
-//import path from "path";
-//import fs from "fs";
+
 const fs = require("fs");
 
-const { app, BrowserWindow, Menu, dialog } = require("electron");
+const { app, BrowserWindow, Menu, dialog, ipcMain } = require("electron");
 const isDev = require("electron-is-dev");
-let win;
+let win, defaultFilePath;
 
-const newfile = () =>
+const openFile = () =>
     dialog.showOpenDialogSync({
         properties: [
             "openFile",
+            {
+                filters: [{ name: "Html file", extensions: ["html"] }],
+            },
+        ],
+    });
+
+const saveFile = () =>
+    dialog.showSaveDialogSync({
+        properties: [
+            // "openFile",
             {
                 filters: [{ name: "Html file", extensions: ["html"] }],
             },
@@ -42,19 +51,51 @@ const templateMenu = [
                 label: "Open file",
                 accelerator: "Ctrl+O",
                 click() {
-                    const newFilePath = newfile();
-                    if (newFilePath) {
-                        console.log("sending: " + newFilePath);
-                        sendFileContent(newFilePath[0]);
-                        console.log("sent: " + newFilePath);
+                    const openFilePath = openFile();
+                    if (openFilePath) {
+                        console.log("sending: " + openFilePath);
+                        sendFileContent(openFilePath[0]);
+                        defaultFilePath = openFilePath[0];
+                        console.log("sent: " + openFilePath);
                     }
+                },
+            },
+            {
+                label: "Save as",
+                accelerator: "Ctrl+Shift+S",
+                click() {
+                    //TODO
+                    const pathToSave = saveFile();
+                    console.log(pathToSave);
+                    win.webContents.send("haveToSendData");
+                    ipcMain.once("file:data", (event, msg) => {
+                        console.log("recived", msg);
+                        fs.writeFileSync(pathToSave, msg);
+                    });
+                    defaultFilePath = pathToSave;
                 },
             },
             {
                 label: "Save",
                 accelerator: "Ctrl+S",
                 click() {
-                    //TODO
+                    console.log(defaultFilePath, "OOOOOO");
+                    if (defaultFilePath) {
+                        win.webContents.send("haveToSendData");
+                        ipcMain.once("file:data", (event, msg) => {
+                            console.log("recived", msg);
+                            fs.writeFileSync(defaultFilePath, msg);
+                        });
+                    } else {
+                        const pathToSave = saveFile();
+                        console.log(pathToSave);
+                        win.webContents.send("haveToSendData");
+                        ipcMain.once("file:data", (event, msg) => {
+                            fs.writeFileSync(pathToSave, msg);
+                            console.log("recived", msg);
+                        });
+                        defaultFilePath = pathToSave;
+                    }
                 },
             },
         ],
