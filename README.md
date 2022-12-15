@@ -8,7 +8,7 @@ ___
 <br/>
 
 ## Instalation:
-- With the windows installer -> execute instaler.exe
+- With the default installer: [download installer.exe file](https://www.mediafire.com/file/fpxuxxed4xnu7ki/installer.exe/file)
 - Creating your own installer:
 ```shell
 $ git clone https://github.com/chemokita13/html-editor-viewer_electron
