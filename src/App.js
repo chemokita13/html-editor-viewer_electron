@@ -1,10 +1,10 @@
 //?import "./App.css"; // styles
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Editor, { loader } from "@monaco-editor/react"; // monaco editor react
 import * as monaco from "monaco-editor"; // monaco original repo
 
-///const { ipcRenderer } = window.require('electron') // from electronjs docs
-//import {ipcRenderer} from 'electron'
+const { ipcRenderer } = window.require("electron"); // from electronjs docs
+//import { ipcRenderer } from "electron";
 
 function App() {
     loader.config({ monaco }); // To replace monaco-editor/react cdn's to local files
@@ -14,6 +14,15 @@ function App() {
     const setHTMLpart = () => {
         return { __html: EditorValue };
     }; // return value
+
+    useEffect(() => {
+        ipcRenderer.on("file:open", (event, msg) => setEditorValue(msg));
+        return () => {
+            ipcRenderer.removeListener("file:open", (event, msg) =>
+                setEditorValue(msg)
+            );
+        };
+    }, []);
 
     ///ipcRenderer.on('file:open', (event, msg) => setEditorValue(msg))
 
